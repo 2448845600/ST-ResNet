@@ -211,7 +211,7 @@ def load_dataset(
     data_all = []
     timestamps_all = list()
     for year in range(13, 17):
-        fname = os.path.join(data_root, 'InOutData', 'BJ{}_M32x32_T30_InOut.h5'.format(year))
+        fname = os.path.join(data_root, 'InOutFlow', 'BJ{}_M32x32_T30_InOut.h5'.format(year))
         print("file name: ", fname)
         stat(fname)
         data, timestamps = load_stdata(fname)
@@ -335,14 +335,14 @@ def cache(fname, X_train, Y_train, X_test, Y_test, external_dim, timestamp_train
 def read_cache(data_root, cache_path, fname):
     mmn = pickle.load(open(os.path.join(data_root, cache_path, 'preprocessing.pkl'), 'rb'))
     f = h5py.File(fname, 'r')
-    num = int(f['num'][:])
+    num = int(f['num'][()])
     X_train, Y_train, X_test, Y_test = [], [], [], []
     for i in range(num):
         X_train.append(f['X_train_%i' % i][:])
         X_test.append(f['X_test_%i' % i][:])
     Y_train = f['Y_train'][:]
     Y_test = f['Y_test'][:]
-    external_dim = f['external_dim'][:]
+    external_dim = f['external_dim'][()]
     timestamp_train = f['T_train'][:]
     timestamp_test = f['T_test'][:]
     f.close()
@@ -350,6 +350,10 @@ def read_cache(data_root, cache_path, fname):
 
 
 def load_data(data_root, cache_path, len_closeness, len_period, len_trend, len_test):
+    """
+    X_train: list, X_c(13728, 32, 32, 6), X_p(13728, 32, 32, 2), X_t(13728, 32, 32, 2), X_meta(13728, 28)
+    Y_train: ndarray, (13728, 32, 32, 2)
+    """
     fname = os.path.join(data_root, cache_path, 'TaxiBJ_C{}_P{}_T{}.h5'.format(len_closeness, len_period, len_trend))
     if os.path.exists(fname):
         X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = read_cache(
@@ -367,4 +371,8 @@ def load_data(data_root, cache_path, len_closeness, len_period, len_trend, len_t
 
 if __name__ == "__main__":
     X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = \
-        load_data(data_root='/content/drive/MyDrive/datasets/TaxiBJ', cache_path='/content/drive/MyDrive/datasets/TaxiBJ/cache', len_closeness=3, len_period=1, len_trend=1, len_test=28 * 48)
+        load_data(data_root='/Users/smilehan/Documents/要带走的东西/codes/datasets/TaxiBJ',
+                  cache_path='/Users/smilehan/Documents/要带走的东西/codes/datasets/TaxiBJ/cache',
+                  len_closeness=3, len_period=1, len_trend=1, len_test=28 * 48)
+
+    print('yes')
