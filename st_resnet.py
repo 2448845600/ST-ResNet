@@ -15,7 +15,7 @@ class ConvBlock(nn.Module):
         self.use_bn = use_bn
         self.bn = nn.BatchNorm2d(in_channels)
         self.relu = nn.ReLU()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride)
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=1)
 
     def forward(self, x):
         if self.use_bn:
@@ -69,8 +69,8 @@ class STResNet(nn.Module):
     """
     def __init__(self,
                  c_conf=(3, 2, 32, 32),
-                 p_conf=(3, 2, 32, 32),
-                 t_conf=(3, 2, 32, 32),
+                 p_conf=(1, 2, 32, 32),
+                 t_conf=(1, 2, 32, 32),
                  external_dim=8,
                  repeat_num=3):
         super(STResNet, self).__init__()
@@ -97,7 +97,7 @@ class STResNet(nn.Module):
     def _make_one_way(self, in_channels):
         return nn.Sequential(
             conv3x3(in_channels=in_channels, out_channels=64),
-            RepeatUnits(in_channels=in_channels, out_channels=64, repeat_num=self.repeat_num),
+            RepeatUnits(in_channels=64, out_channels=64, repeat_num=self.repeat_num),
             nn.ReLU(),
             conv3x3(in_channels=64, out_channels=2),
             ParametricFusion(self.channel, self.height, self.width),
@@ -108,6 +108,8 @@ class STResNet(nn.Module):
         p_out = self.p_way(input_p)
         t_out = self.t_way(input_t)
         e_out = self.e_way(input_e)
+        e_out = e_out.view(-1, self.channel, self.height, self.width)
+
         out = self.tanh(c_out + p_out + t_out + e_out)
         return out
 
