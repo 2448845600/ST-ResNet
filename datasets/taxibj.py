@@ -1,10 +1,26 @@
-from datasets.dataloader import load_dataset
+import torch
 import torch.utils.data as data
 
+from datasets.dataloader import load_dataset
 
 T = 24
 days_test = 10
 len_test = T * days_test
+
+
+def data_permute(X_c, X_p, X_t, X_meta, Y_batch, device):
+    X_c = X_c.type(torch.FloatTensor).to(device)
+    X_p = X_p.type(torch.FloatTensor).to(device)
+    X_t = X_t.type(torch.FloatTensor).to(device)
+    X_meta = X_meta.type(torch.FloatTensor).to(device)
+    Y_batch = Y_batch.type(torch.FloatTensor).to(device)
+
+    X_c = X_c.permute(0, 3, 1, 2)
+    X_p = X_p.permute(0, 3, 1, 2)
+    X_t = X_t.permute(0, 3, 1, 2)
+    Y_batch = Y_batch.permute(0, 3, 1, 2)
+
+    return X_c, X_p, X_t, X_meta, Y_batch
 
 
 class TaxiBJ(data.Dataset):
