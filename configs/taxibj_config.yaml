@@ -1,0 +1,23 @@
+task:
+  len_closeness: 3  # length of closeness dependent sequence
+  len_period: 4  # length of peroid dependent sequence
+  len_trend: 4  # length of trend dependent sequence
+
+dataset:
+  batch_size: 500
+  shuffle: False
+  drop_last: False
+  channel: 2
+  height: 32
+  width: 32
+
+network:
+  repeat_num: 4   # number of residual units
+
+training:
+  lr: 0.002
+  max_epoch: 500
+  save_interval: 5
+  val_split: 0.1
+
+
