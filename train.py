@@ -120,12 +120,10 @@ for epoch in range(train_conf['max_epoch']):
 
     if rmse < best_rmse:
         best_rmse, best_epoch = rmse, epoch
-        torch.save(model.state_dict(), os.path.join(train_conf['save_dir'], 'epoch{}_rmse{}.pth'.format(epoch, rmse)))
+        torch.save({'model': model.state_dict(), 'rmse': rmse, 'epoch': epoch},
+                   os.path.join(train_conf['save_dir'], 'best.pth'))
         print('VAL, epoch: {}, best_rmse: {}'.format(epoch, best_rmse))
 
     if epoch % train_conf['save_interval'] == 0:
-        torch.save({
-            'optimizer': optimizer.state_dict(),
-            'epoch': epoch,
-            'param': model.state_dict()
-        }, os.path.join(train_conf['save_dir'], 'epoch_{}.pth'.format(epoch)))
+        torch.save({'optimizer': optimizer.state_dict(), 'epoch': epoch, 'model': model.state_dict()},
+                   os.path.join(train_conf['save_dir'], 'latest.pth'))

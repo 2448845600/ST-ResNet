@@ -20,7 +20,7 @@ def valid(model, val_dataloader, device):
     for i, (X_c, X_p, X_t, X_meta, labels) in enumerate(val_dataloader):
         X_c, X_p, X_t, X_meta, labels = data_permute(X_c, X_p, X_t, X_meta, labels, device)
         outputs = model(X_c, X_p, X_t, X_meta)
-        mse, mae, rmse = compute_errors(outputs.cpu().data.numpy(), labels.data.numpy())
+        mse, mae, rmse = compute_errors(outputs.cpu().data.numpy(), labels.cpu().data.numpy())
         rmse_list.append(rmse)
         mse_list.append(mse)
         mae_list.append(mae)
