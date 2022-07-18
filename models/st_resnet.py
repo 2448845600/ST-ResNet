@@ -1,5 +1,5 @@
 """
-搭建 ST-ResNet pytorch 版本
+搭建 ST_ResNet pytorch 版本
 """
 import torch
 import torch.nn as nn
