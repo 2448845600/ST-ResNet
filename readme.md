@@ -2,6 +2,8 @@
 
 Pytorch version of ST-ResNet
 
+The code implementation refers to [[ST-ResNet-Pytorch](https://github.com/BruceBinBoxing/ST-ResNet-Pytorch)](https://github.com/BruceBinBoxing/ST-ResNet-Pytorch)
+
 ## Dataset
 
 Four types of input data:
