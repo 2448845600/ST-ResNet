@@ -10,7 +10,7 @@ from utils.util import load_conf, load_trainvaltest_dataloader, load_loss
 from val import valid
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('conf_path', type=str, help='conf path')
+parser.add_argument('--conf_path', type=str, default='configs/taxibj_config.yaml', help='conf path')
 args = parser.parse_args()
 
 # load config

@@ -12,8 +12,8 @@ def test(model, test_dataloader, device):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('conf_path', type=str, help='conf path')
-    parser.add_argument('model_path', type=str, help='model path')
+    parser.add_argument('--conf_path', type=str, default='configs/taxibj_config.yaml', help='conf path')
+    parser.add_argument('--model_path', type=str, default='workdir/best.pth', help='model path')
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
