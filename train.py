@@ -43,11 +43,8 @@ for epoch in range(conf['training']['max_epoch']):
     for i_iter, (X_c, X_p, X_t, X_meta, Y_batch) in enumerate(train_dataloader):
         X_c, X_p, X_t, X_meta, Y_batch = data_permute(X_c, X_p, X_t, X_meta, Y_batch, device)
 
-        # Forward pass
         outputs = model(X_c, X_p, X_t, X_meta)
         loss = loss_mse(outputs, Y_batch)
-
-        # Backward and optimize
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
