@@ -52,7 +52,7 @@ for epoch in range(conf['training']['max_epoch']):
         loss.backward()
         optimizer.step()
 
-        # val and print
+        # val
         if i_iter % 10 == 0:
             print('TRAIN, epoch: {}/{}, iter: {}, loss: {}'.format(
                 epoch, conf['training']['max_epoch'], i_iter, loss.item()))
@@ -70,6 +70,7 @@ for epoch in range(conf['training']['max_epoch']):
         torch.save({'optimizer': optimizer.state_dict(), 'epoch': epoch, 'model': model},
                    os.path.join(conf['training']['save_dir'], 'latest.pth'))
 
+# test best_model
 best_model = torch.load(os.path.join(conf['training']['save_dir'], 'best.pth'))
 test_rmse, test_mse, test_mae = test(best_model, test_dataloader, device)
 print("TEST, rmse: {}".format(test_rmse))
