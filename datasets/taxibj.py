@@ -1,8 +1,12 @@
+import numpy as np
 import torch
 import torch.utils.data as data
+from torch.utils.data.sampler import SubsetRandomSampler
 
 from datasets.dataloader import load_dataset
 
+
+# dataset config
 T = 24
 days_test = 10
 len_test = T * days_test
@@ -57,12 +61,14 @@ class TaxiBJ(data.Dataset):
                     len_test=len_test,
                     preprocess_name='preprocessing.pkl',
                     meta_data=True)
+            else:
+                raise "Unknown mode"
 
             assert len(self.X_data[0]) == len(self.Y_data)
             self.data_len = len(self.Y_data)
 
         else:
-            print('Unknown datasets')
+            raise "Unknown dataset"
 
         self.mmn = mmn
 
@@ -88,3 +94,50 @@ class TaxiBJ(data.Dataset):
         y = self.Y_data[index]
 
         return X_c, X_p, X_t, X_meta, y
+
+
+def get_taxtbj_dataset(conf):
+    trainval_dataset = TaxiBJ(data_root=conf['dataset']['root_path'], cache_path=conf['dataset']['cache_path'],
+                            dataset_name=conf['dataset']['name'], mode='train',
+                            len_closeness=conf['task']['len_closeness'], len_period=conf['task']['len_period'],
+                            len_trend=conf['task']['len_trend'])
+    test_dataset = TaxiBJ(data_root=conf['dataset']['root_path'], cache_path=conf['dataset']['cache_path'],
+                            dataset_name=conf['dataset']['name'], mode='test',
+                            len_closeness=conf['task']['len_closeness'], len_period=conf['task']['len_period'],
+                            len_trend=conf['task']['len_trend'])
+
+    # split train and val
+    trainval_size = len(trainval_dataset)
+    indices = list(range(trainval_size))
+    split = int(np.floor(conf['dataset']['val_split'] * trainval_size))
+    if conf['dataset']['shuffle']:
+        np.random.seed(conf['random_seed'])
+        np.random.shuffle(indices)
+    train_indices, val_indices = indices[split:], indices[:split]
+    train_sampler = SubsetRandomSampler(train_indices)
+    valid_sampler = SubsetRandomSampler(val_indices)
+    train_dataloader = data.DataLoader(
+        trainval_dataset,
+        batch_size=conf['training']['batch_size'],
+        shuffle=conf['dataset']['shuffle'],
+        drop_last=conf['dataset']['drop_last'],
+        num_workers=conf['training']['num_workers'],
+        sampler=train_sampler,
+    )
+    valid_dataloader = data.DataLoader(
+        trainval_dataset,
+        batch_size=conf['training']['batch_size'],
+        shuffle=conf['dataset']['shuffle'],
+        drop_last=conf['dataset']['drop_last'],
+        num_workers=conf['training']['num_workers'],
+        sampler=valid_sampler,
+    )
+    test_dataloader = data.DataLoader(
+        test_dataset,
+        batch_size=conf['training']['batch_size'],
+        shuffle=False,
+        drop_last=conf['dataset']['drop_last'],
+        num_workers=conf['training']['num_workers'],
+    )
+
+    return train_dataloader, valid_dataloader, test_dataloader

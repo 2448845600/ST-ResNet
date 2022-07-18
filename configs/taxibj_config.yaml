@@ -1,23 +1,32 @@
+random_seed: 42
+
 task:
   len_closeness: 3  # length of closeness dependent sequence
-  len_period: 4  # length of peroid dependent sequence
-  len_trend: 4  # length of trend dependent sequence
+  len_period: 1  # length of peroid dependent sequence
+  len_trend: 1  # length of trend dependent sequence
+  external_dim: 28
 
 dataset:
-  batch_size: 500
+  name: 'TaxiBJ'
+  root_path: '/content/drive/MyDrive/datasets/TaxiBJ'
+  cache_path: '/content/drive/MyDrive/datasets/TaxiBJ/cache'
   shuffle: False
   drop_last: False
-  channel: 2
+  flow: 2
   height: 32
   width: 32
+  val_split: 0.1
 
 network:
-  repeat_num: 4   # number of residual units
+  repeat_num: 4
+  loss: mse
 
 training:
   lr: 0.002
   max_epoch: 500
+  batch_size: 500
+  num_workers: 0
   save_interval: 5
-  val_split: 0.1
+  save_dir: '/content/drive/MyDrive/projects/ST_ResNet/workdir'
 
 

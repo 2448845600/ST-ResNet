@@ -15,6 +15,7 @@ def compute_errors(preds, y_true):
 
 
 def valid(model, val_dataloader, device):
+    model.to(device)
     model.eval()
     rmse_list, mse_list, mae_list = [], [], []
     for i, (X_c, X_p, X_t, X_meta, labels) in enumerate(val_dataloader):
