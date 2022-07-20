@@ -20,17 +20,23 @@ conf = load_conf(args.conf_path)
 train_dataloader, valid_dataloader, test_dataloader = load_trainvaltest_dataloader(conf)
 
 # load model and loss
-model = STResNet(
-    (conf['task']['len_closeness'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
-    (conf['task']['len_period'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
-    (conf['task']['len_trend'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
-    conf['task']['external_dim'],
-    conf['network']['repeat_num']
-)
+if os.path.exists(conf['training']['resume_path']):
+    resume = torch.load(conf['training']['resume_path'])
+    model, optimizer, start_epoch = resume['model'], resume['optimizer'], resume['epoch'] + 1
+else:
+    model = STResNet(
+        (conf['task']['len_closeness'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
+        (conf['task']['len_period'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
+        (conf['task']['len_trend'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
+        conf['task']['external_dim'],
+        conf['network']['repeat_num']
+    )
+    optimizer = torch.optim.Adam(model.parameters(), lr=conf['training']['lr'])
+    start_epoch = 0
+
 loss_mse = load_loss(conf)
 
 # load training setting
-optimizer = torch.optim.Adam(model.parameters(), lr=conf['training']['lr'])
 if not os.path.exists(conf['training']['save_dir']):
     os.mkdir(conf['training']['save_dir'])
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,7 +45,7 @@ loss_mse.to(device)
 
 # training
 best_rmse, best_epoch = 1., 0
-for epoch in range(conf['training']['max_epoch']):
+for epoch in range(start_epoch, conf['training']['max_epoch']):
     for i_iter, (X_c, X_p, X_t, X_meta, Y_batch) in enumerate(train_dataloader):
         X_c, X_p, X_t, X_meta, Y_batch = data_permute(X_c, X_p, X_t, X_meta, Y_batch, device)
 
@@ -64,7 +70,7 @@ for epoch in range(conf['training']['max_epoch']):
         print('VAL, epoch: {}, best_rmse: {}'.format(epoch, best_rmse))
 
     if epoch % conf['training']['save_interval'] == 0:
-        torch.save({'optimizer': optimizer.state_dict(), 'epoch': epoch, 'model': model},
+        torch.save({'model': model, 'optimizer': optimizer, 'epoch': epoch},
                    os.path.join(conf['training']['save_dir'], 'latest.pth'))
 
 # test best_model

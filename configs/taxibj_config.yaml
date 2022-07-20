@@ -28,5 +28,6 @@ training:
   num_workers: 0
   save_interval: 5
   save_dir: '/content/drive/MyDrive/projects/ST_ResNet/workdir'
+  resume_path: '/content/drive/MyDrive/projects/ST_ResNet/workdir/latest.pth'
 
 
