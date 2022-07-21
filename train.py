@@ -74,6 +74,6 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
         update_latest(model, optimizer, epoch, os.path.join(conf['training']['save_dir'], 'latest.pth'))
 
 # test best_model
-best_model = torch.load(os.path.join(conf['training']['save_dir'], 'best.pth'))
+best_model = torch.load(os.path.join(conf['training']['save_dir'], 'best.pth'))['model']
 test_rmse, test_mse, test_mae = test(best_model, test_dataloader, device)
 print("TEST, rmse: {}".format(test_rmse))
