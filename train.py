@@ -66,7 +66,7 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
     rmse, mse, mae = valid(model, valid_dataloader, mmn, device)
     print('VAL, epoch: {}, rmse: {}, mse: {}, mae: {}'.format(epoch, rmse, mse, mae))
 
-    if es.step(mse):
+    if es.step(mse, epoch):
         print('early stopped! With val loss:', mse)
         break
 
