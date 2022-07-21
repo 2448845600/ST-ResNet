@@ -7,7 +7,7 @@ import torch
 from datasets.taxibj import data_permute
 from models.st_resnet import STResNet
 from test import test
-from utils.util import load_conf, load_trainvaltest_dataloader, load_loss
+from utils.util import load_conf, load_trainvaltest_dataloader, load_loss, EarlyStopping, update_latest
 from val import valid
 
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -47,6 +47,7 @@ loss_mse.to(device)
 
 # training
 best_rmse, best_epoch = 1., 0
+es = EarlyStopping(model, os.path.join(conf['training']['save_dir'], 'best.pth'))
 for epoch in range(start_epoch, conf['training']['max_epoch']):
     losses = []
     for i_iter, (X_c, X_p, X_t, X_meta, Y_batch) in enumerate(train_dataloader):
@@ -65,15 +66,12 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
     rmse, mse, mae = valid(model, valid_dataloader, device)
     print('VAL, epoch: {}, rmse: {}, mse: {}, mae: {}'.format(epoch, rmse, mse, mae))
 
-    if rmse < best_rmse:
-        best_rmse, best_epoch = rmse, epoch
-        torch.save({'model': model, 'rmse': rmse, 'epoch': epoch},
-                   os.path.join(conf['training']['save_dir'], 'best.pth'))
-        print('VAL, epoch: {}, best_rmse: {}'.format(epoch, best_rmse))
+    if es.step(mse):
+        print('early stopped! With val loss:', mse)
+        break
 
     if epoch % conf['training']['save_interval'] == 0:
-        torch.save({'model': model, 'optimizer': optimizer, 'epoch': epoch},
-                   os.path.join(conf['training']['save_dir'], 'latest.pth'))
+        update_latest(model, optimizer, epoch, os.path.join(conf['training']['save_dir'], 'latest.pth'))
 
 # test best_model
 best_model = torch.load(os.path.join(conf['training']['save_dir'], 'best.pth'))
