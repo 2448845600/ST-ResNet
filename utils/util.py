@@ -68,7 +68,7 @@ class EarlyStopping(object):
         if self.is_better(metrics, self.best):
             self.num_bad_epochs = 0
             self.best = metrics
-            torch.save({'model': self.model, 'mse': self.best, 'epoch': epoch}, self.save_path)
+            torch.save({'model': self.model, 'mse': self.best.item(), 'epoch': epoch}, self.save_path)
             print('best model saved at {}'.format(self.save_path))
         else:
             self.num_bad_epochs += 1
