@@ -231,7 +231,7 @@ def load_dataset(
     mmn = MinMaxNormalization()
     mmn.fit(data_train)
     data_all_mmn = [mmn.transform(d) for d in data_all]
-    fpkl = open(os.path.join(data_root, cache_path, preprocess_name), 'wb')
+    fpkl = open(os.path.join(cache_path, preprocess_name), 'wb')
     for obj in [mmn]:
         pickle.dump(obj, fpkl)  # 保存特征缩放模型[-1,1]
     fpkl.close()
@@ -332,8 +332,8 @@ def cache(fname, X_train, Y_train, X_test, Y_test, external_dim, timestamp_train
     h5.close()
 
 
-def read_cache(data_root, cache_path, fname):
-    mmn = pickle.load(open(os.path.join(data_root, cache_path, 'preprocessing.pkl'), 'rb'))
+def read_cache(cache_path, fname):
+    mmn = pickle.load(open(os.path.join(cache_path, 'preprocessing.pkl'), 'rb'))
     f = h5py.File(fname, 'r')
     num = int(f['num'][()])
     X_train, Y_train, X_test, Y_test = [], [], [], []
@@ -354,10 +354,10 @@ def load_data(data_root, cache_path, len_closeness, len_period, len_trend, len_t
     X_train: list, X_c(13728, 32, 32, 6), X_p(13728, 32, 32, 2), X_t(13728, 32, 32, 2), X_meta(13728, 28)
     Y_train: ndarray, (13728, 32, 32, 2)
     """
-    fname = os.path.join(data_root, cache_path, 'TaxiBJ_C{}_P{}_T{}.h5'.format(len_closeness, len_period, len_trend))
+    fname = os.path.join(cache_path, 'TaxiBJ_C{}_P{}_T{}.h5'.format(len_closeness, len_period, len_trend))
     if os.path.exists(fname):
-        X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = read_cache(
-            data_root, cache_path, fname)
+        X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = read_cache(cache_path,
+                                                                                                          fname)
         print("load %s successfully" % fname)
     else:
         if os.path.isdir(cache_path) is False:
