@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import numpy as np
 import torch
 
 from datasets.taxibj import data_permute
@@ -23,6 +24,7 @@ train_dataloader, valid_dataloader, test_dataloader = load_trainvaltest_dataload
 if os.path.exists(conf['training']['resume_path']):
     resume = torch.load(conf['training']['resume_path'])
     model, optimizer, start_epoch = resume['model'], resume['optimizer'], resume['epoch'] + 1
+    print('load model, optimizer, epoch from {}'.format(conf['training']['resume_path']))
 else:
     model = STResNet(
         (conf['task']['len_closeness'], conf['dataset']['flow'], conf['dataset']['height'], conf['dataset']['width']),
@@ -46,6 +48,7 @@ loss_mse.to(device)
 # training
 best_rmse, best_epoch = 1., 0
 for epoch in range(start_epoch, conf['training']['max_epoch']):
+    losses = []
     for i_iter, (X_c, X_p, X_t, X_meta, Y_batch) in enumerate(train_dataloader):
         X_c, X_p, X_t, X_meta, Y_batch = data_permute(X_c, X_p, X_t, X_meta, Y_batch, device)
 
@@ -55,11 +58,10 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
         loss.backward()
         optimizer.step()
 
-        # val
-        if i_iter % 10 == 0:
-            print('TRAIN, epoch: {}/{}, iter: {}, loss: {}'.format(
-                epoch, conf['training']['max_epoch'], i_iter, loss.item()))
+        losses.append(loss.item())
+    print('TRAIN, epoch: {}/{}, loss: {}'.format(epoch, conf['training']['max_epoch'], np.mean(losses)))
 
+    # val
     rmse, mse, mae = valid(model, valid_dataloader, device)
     print('VAL, epoch: {}, rmse: {}, mse: {}, mae: {}'.format(epoch, rmse, mse, mae))
 
