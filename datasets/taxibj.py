@@ -140,4 +140,4 @@ def get_taxtbj_dataset(conf):
         num_workers=conf['training']['num_workers'],
     )
 
-    return train_dataloader, valid_dataloader, test_dataloader
+    return train_dataloader, valid_dataloader, test_dataloader, trainval_dataset.mmn

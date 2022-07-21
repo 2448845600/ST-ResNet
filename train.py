@@ -18,7 +18,7 @@ args = parser.parse_args()
 conf = load_conf(args.conf_path)
 
 # get train/val/test loader
-train_dataloader, valid_dataloader, test_dataloader = load_trainvaltest_dataloader(conf)
+train_dataloader, valid_dataloader, test_dataloader, mmn = load_trainvaltest_dataloader(conf)
 
 # load model and loss
 if os.path.exists(conf['training']['resume_path']):
@@ -63,7 +63,7 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
     print('TRAIN, epoch: {}/{}, loss: {}'.format(epoch, conf['training']['max_epoch'], np.mean(losses)))
 
     # val
-    rmse, mse, mae = valid(model, valid_dataloader, device)
+    rmse, mse, mae = valid(model, valid_dataloader, mmn, device)
     print('VAL, epoch: {}, rmse: {}, mse: {}, mae: {}'.format(epoch, rmse, mse, mae))
 
     if es.step(mse):
@@ -75,5 +75,5 @@ for epoch in range(start_epoch, conf['training']['max_epoch']):
 
 # test best_model
 best_model = torch.load(os.path.join(conf['training']['save_dir'], 'best.pth'))['model']
-test_rmse, test_mse, test_mae = test(best_model, test_dataloader, device)
+test_rmse, test_mse, test_mae = test(best_model, test_dataloader, mmn, device)
 print("TEST, rmse: {}".format(test_rmse))
