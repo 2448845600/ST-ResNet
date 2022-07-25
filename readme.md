@@ -32,7 +32,12 @@ E-Way is stack by nn.linear() and nn.ReLU()
 ## Experiment
 
 
-| bn | TaxiBJ(rmse) | BikeNYC(rmse) |
-| ---- | -------------- | --------------- |
-| v  | -            | -             |
-| x  | -            | -             |
+| ID        | resume     | structure | training mode | TaxiBJ(rmse) | BikeNYC(rmse) |
+|-----------|------------|-----------|---------------| -------------- | --------------- |
+| 20220725A | random(42) | L4-woBN   | training      | 33.1854      | -             |
+| 20220725B | 20220725A  | L4-woBN   | finetuning    | -            | -             |
+
+Note:
+- training: train set, 500epoch;
+- finetuning: train+val set, 100epoch;
+- woBN: without BN layers;
